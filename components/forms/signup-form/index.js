@@ -10,12 +10,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useSignUpFormHook from "./useSignUpFormHook";
 const SignUpForm = ({ className, ...props }) => {
   const { renderSignUpForm } = useSignUpFormHook();
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -26,6 +30,7 @@ const SignUpForm = ({ className, ...props }) => {
   const onSubmit = async (data) => {
     setErrorMessage("");
     try {
+      setLoading(true);
       const resUserExists = await fetch("api/userExists", {
         method: "POST",
         headers: {
@@ -61,6 +66,8 @@ const SignUpForm = ({ className, ...props }) => {
       }
     } catch (error) {
       console.log("Error during registration: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,8 +127,15 @@ const SignUpForm = ({ className, ...props }) => {
                   {errorMessage}
                 </div>
               )}
-              <Button type="submit" className="w-full">
-                Sign Up
+              <Button disabled={loading} type="submit" className="w-full">
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Sign Up"
+                )}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">

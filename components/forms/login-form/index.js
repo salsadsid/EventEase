@@ -10,13 +10,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import useLoginFormHook from "./useLoginFormHook";
 
 export function LoginForm({ className, ...props }) {
   const { renderLoginForm } = useLoginFormHook();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
@@ -27,6 +31,7 @@ export function LoginForm({ className, ...props }) {
   const onSubmit = async (data) => {
     setErrorMessage("");
     try {
+      setLoading(true);
       const res = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -41,6 +46,8 @@ export function LoginForm({ className, ...props }) {
       router.replace("dashboard");
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,8 +95,15 @@ export function LoginForm({ className, ...props }) {
                   {errorMessage}
                 </p>
               )}
-              <Button type="submit" className="w-full">
-                Login
+              <Button disabled={loading} type="submit" className="w-full">
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Please wait
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
