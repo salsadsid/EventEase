@@ -11,15 +11,58 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useState } from "react";
 import useSignUpFormHook from "./useSignUpFormHook";
 const SignUpForm = ({ className, ...props }) => {
   const { renderSignUpForm } = useSignUpFormHook();
-
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = renderSignUpForm;
+
+  const onSubmit = async (data) => {
+    setErrorMessage("");
+    try {
+      const resUserExists = await fetch("api/userExists", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: data.email }),
+      });
+
+      const { user } = await resUserExists.json();
+
+      if (user) {
+        setErrorMessage("User already exists.");
+        return;
+      }
+
+      const res = await fetch("api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        }),
+      });
+
+      if (res.ok) {
+        reset();
+        router.push("/");
+      } else {
+        console.log("User registration failed.");
+      }
+    } catch (error) {
+      console.log("Error during registration: ", error);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -31,7 +74,7 @@ const SignUpForm = ({ className, ...props }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((data) => console.log(data))}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
@@ -72,6 +115,11 @@ const SignUpForm = ({ className, ...props }) => {
                   </p>
                 )}
               </div>
+              {errorMessage && (
+                <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
+                  {errorMessage}
+                </div>
+              )}
               <Button type="submit" className="w-full">
                 Sign Up
               </Button>

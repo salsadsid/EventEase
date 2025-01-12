@@ -10,17 +10,39 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 import useLoginFormHook from "./useLoginFormHook";
 
 export function LoginForm({ className, ...props }) {
   const { renderLoginForm } = useLoginFormHook();
-
+  const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = renderLoginForm;
+
+  const onSubmit = async (data) => {
+    setErrorMessage("");
+    try {
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (res.error) {
+        setErrorMessage("Invalid Credentials");
+        return;
+      }
+
+      router.replace("dashboard");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -32,7 +54,7 @@ export function LoginForm({ className, ...props }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((data) => console.log(data))}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -61,6 +83,11 @@ export function LoginForm({ className, ...props }) {
                   </p>
                 )}
               </div>
+              {errorMessage && (
+                <p className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
+                  {errorMessage}
+                </p>
+              )}
               <Button type="submit" className="w-full">
                 Login
               </Button>
