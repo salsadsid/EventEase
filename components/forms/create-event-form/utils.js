@@ -4,5 +4,4 @@ export const initialCreateEventFormValues = {
   location: "",
   date: new Date().toISOString().split("T")[0],
   maxAttendees: 0,
-  createdBy: "",
 };

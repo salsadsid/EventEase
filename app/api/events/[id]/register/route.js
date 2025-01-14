@@ -56,7 +56,7 @@ export async function POST(req, { params }) {
     await event.save();
 
     return new Response(
-      JSON.stringify({ message: "Successfully registered" }),
+      JSON.stringify({ message: "Successfully registered", event }),
       { status: 200 }
     );
   } catch (error) {

@@ -43,7 +43,7 @@ export function LoginForm({ className, ...props }) {
         return;
       }
 
-      router.replace("dashboard");
+      router.replace("events");
     } catch (error) {
       console.log(error);
     } finally {

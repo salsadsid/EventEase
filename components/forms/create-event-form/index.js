@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import socket from "@/utils/socket";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -44,7 +45,18 @@ export function CreateEventForm({ className, isEdit, ...props }) {
         });
 
         if (res.ok) {
+          // Await and parse the JSON response
+          const updatedEvent = await res.json();
+          console.log(updatedEvent);
           alert("Event updated successfully!");
+
+          // Emit real-time update only if the event has a name and attendees
+          socket.emit("updateEvent", {
+            eventName: updatedEvent?.data?.name || "Unknown Event",
+            isFull:
+              updatedEvent?.data?.attendees?.length >=
+              updatedEvent?.data?.maxAttendees,
+          });
         } else {
           alert("Failed to update event");
         }
@@ -65,10 +77,10 @@ export function CreateEventForm({ className, isEdit, ...props }) {
         });
 
         if (res.ok) {
-          router.push("/dashboard/events");
+          router.push("/events");
         } else {
           setErrorMessage("Failed to create event");
-          console.error("Failed to create event");
+          // console.error("Failed to create event");
         }
       } catch (error) {
         console.error(error);
@@ -110,15 +122,17 @@ export function CreateEventForm({ className, isEdit, ...props }) {
         }
       });
     }
-  }, [isEdit, id]);
+  }, [isEdit, id, renderCreateEventForm]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Create Event</CardTitle>
+          <CardTitle className="text-2xl">
+            {isEdit ? "Update" : "Create"} Event
+          </CardTitle>
           <CardDescription>
-            Enter your details to create an event
+            Enter your details to {isEdit ? "update" : "create"} an event
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -171,23 +185,7 @@ export function CreateEventForm({ className, isEdit, ...props }) {
                   </p>
                 )}
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="createdBy">Created By</Label>
-                </div>
-                <Input
-                  readOnly
-                  value={session?.user?.email}
-                  id="createdBy"
-                  type="text"
-                  {...register("createdBy")}
-                />
-                {errors.createdBy && (
-                  <p className="text-red-500 text-sm">
-                    {errors.createdBy.message}
-                  </p>
-                )}
-              </div>
+
               {errorMessage && (
                 <p className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
                   {errorMessage}

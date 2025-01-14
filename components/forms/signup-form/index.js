@@ -62,7 +62,8 @@ const SignUpForm = ({ className, ...props }) => {
         reset();
         router.push("/");
       } else {
-        console.log("User registration failed.");
+        const errorData = await res.json();
+        setErrorMessage(errorData.message);
       }
     } catch (error) {
       console.log("Error during registration: ", error);

@@ -1,19 +1,15 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
+import EventCard from "@/components/event-card/event-card";
+import Notifications from "@/components/notifications/notification";
+import socket from "@/utils/socket";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 const Page = () => {
   const { data: session, status } = useSession();
   const [events, setEvents] = useState([]);
+  const [registerLoading, setRegisterLoading] = useState(false);
   const router = useRouter();
   useEffect(() => {
     async function fetchEvents() {
@@ -38,6 +34,7 @@ const Page = () => {
     }
 
     try {
+      setRegisterLoading(id);
       const res = await fetch(`/api/events/${id}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,17 +44,27 @@ const Page = () => {
         }),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
+        // Wait for the response to be converted to JSON before using it
+        const data = await res.json();
         alert(data.message);
+        console.log(data, "data");
+
+        // Emit real-time event for new attendee registration
+        socket.emit("registerAttendee", { eventName: data.event.name });
+
+        // Optionally navigate to the event page
         // router.push(`/events/${params.id}`);
       } else {
-        alert(data.message);
+        // Handle error response
+        const errorData = await res.json();
+        alert(errorData.message);
       }
     } catch (error) {
       alert(error.message);
       console.error("Failed to fetch events");
+    } finally {
+      setRegisterLoading(false);
     }
   };
 
@@ -69,46 +76,21 @@ const Page = () => {
     return <p>Access Denied</p>;
   }
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
-      {events.map((event) => (
-        <Card key={event._id} className="w-[350px]">
-          <CardHeader>
-            <CardTitle className="flex gap-2 text-xl">
-              🌃 {event.name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1 bg-gray-200 p-2 rounded">
-              <p>📅 Date: {new Date(event.date).toLocaleDateString()}</p>
-              <p>🗺️ Location: {event.location}</p>
-              <p>🧑‍🤝‍🧑 Max Attendees: {event.maxAttendees}</p>
-              <p>📝 Created By: {event.createdBy}</p>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Link href={`/dashboard/events/${event._id}`}>
-              <Button variant="outline">Edit</Button>
-            </Link>
-            <Button onClick={() => handleRegister(event._id)}>Register</Button>
-          </CardFooter>
-        </Card>
-      ))}
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-md rounded text-center">
-        <h1 className="text-2xl font-bold mb-6">Event Management</h1>
-        <Link
-          href="/dashboard/events/create"
-          className="block bg-blue-600 text-white py-2 rounded mb-4 hover:bg-blue-700"
-        >
-          Create Event
-        </Link>
-        <Link
-          href="/dashboard/events"
-          className="block bg-green-600 text-white py-2 rounded hover:bg-green-700"
-        >
-          View Events
-        </Link>
+    <main className="flex min-h-screen flex-col items-center justify-between ">
+      <div className="grid grid-cols-1 py-6 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        {events.map((event) => (
+          <EventCard
+            key={event._id}
+            event={event}
+            handleRegister={handleRegister}
+            edit={false}
+            registerLoading={registerLoading}
+          />
+        ))}
+
+        <Notifications />
       </div>
-    </div>
+    </main>
   );
 };
 
