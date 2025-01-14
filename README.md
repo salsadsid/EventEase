@@ -24,7 +24,7 @@ Welcome to **EventEase**, your one-stop destination for discovering, managing, a
 
 ---
 
-## 📁 **Folder Structure**
+## 📁 **Folder Structure (sample)**
 
 ```
 .
