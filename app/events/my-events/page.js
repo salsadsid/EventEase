@@ -32,7 +32,7 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <p>Loading your events...</p>;
+    return <Loading />;
   }
 
   async function deleteEvent(id) {

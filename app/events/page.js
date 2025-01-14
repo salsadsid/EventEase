@@ -5,6 +5,7 @@ import Notifications from "@/components/notifications/notification";
 import useSocket from "@/hooks/useSocket";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Loading from "../loading";
 const Page = () => {
   const { data: session, status } = useSession();
   const [events, setEvents] = useState([]);
@@ -68,7 +69,7 @@ const Page = () => {
   };
 
   if (status === "loading") {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   if (status === "unauthenticated") {
