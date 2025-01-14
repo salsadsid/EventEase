@@ -77,6 +77,7 @@ const Page = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between ">
       <div className="grid grid-cols-1 py-6 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        {events.length === 0 && <p>No events found</p>}
         {events.map((event) => (
           <EventCard
             key={event._id}
@@ -84,6 +85,7 @@ const Page = () => {
             handleRegister={handleRegister}
             edit={false}
             registerLoading={registerLoading}
+            session={session}
           />
         ))}
 

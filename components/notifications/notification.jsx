@@ -43,8 +43,19 @@ export default function Notifications() {
       <h2 className="text-lg font-semibold mb-4">Notifications</h2>
       <ul className="space-y-2">
         {notifications.map((note, index) => (
-          <li key={index} className="bg-gray-100 p-2 rounded-md">
+          <li
+            key={index}
+            className="bg-gray-100 p-2 rounded-md flex justify-between"
+          >
             {note}
+            <button
+              onClick={() =>
+                setNotifications((prev) => prev.filter((_, i) => i !== index))
+              }
+              className="text-red-500 hover:text-red-700"
+            >
+              ✖
+            </button>
           </li>
         ))}
         {notifications.length === 0 && (

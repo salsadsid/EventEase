@@ -14,7 +14,9 @@ const EventCard = ({
   handleDelete = null,
   edit = false,
   registerLoading = false,
+  session = null,
 }) => {
+  console.log("event: ", session);
   return (
     <Card key={event._id} className="w-[350px]">
       <CardHeader>
@@ -35,7 +37,7 @@ const EventCard = ({
             <Button variant="outline">Edit</Button>
           </Link>
         )}
-        {handleRegister && (
+        {handleRegister && session?.user?.email !== event.createdBy && (
           <Button
             disabled={registerLoading === event._id}
             onClick={() => handleRegister(event._id)}
