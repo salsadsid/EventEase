@@ -14,7 +14,12 @@ app.prepare().then(() => {
   });
 
   // Setup Socket.IO
-  const io = socketIo(server);
+  const io = socketIo(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
 
   // Listen for connections
   io.on("connection", (socket) => {
@@ -39,7 +44,8 @@ app.prepare().then(() => {
   });
 
   const port = process.env.PORT || 3000;
-  server.listen(port, () => {
+  server.listen(port, (err) => {
+    if (err) throw err;
     console.log(`> Ready on http://localhost:${port}`);
   });
 });

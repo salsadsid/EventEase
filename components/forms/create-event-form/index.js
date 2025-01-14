@@ -10,7 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import socket from "@/utils/socket";
+
+import useSocket from "@/hooks/useSocket";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -20,7 +21,7 @@ import useCreateEventFormHook from "./useCreateEventFormHook";
 export function CreateEventForm({ className, isEdit, ...props }) {
   // console.log(user);
   const { id } = useParams();
-
+  const socket = useSocket();
   const { data: session, status } = useSession();
   const { renderCreateEventForm } = useCreateEventFormHook();
   const router = useRouter();

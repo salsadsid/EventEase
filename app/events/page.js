@@ -2,15 +2,14 @@
 
 import EventCard from "@/components/event-card/event-card";
 import Notifications from "@/components/notifications/notification";
-import socket from "@/utils/socket";
+import useSocket from "@/hooks/useSocket";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 const Page = () => {
   const { data: session, status } = useSession();
   const [events, setEvents] = useState([]);
   const [registerLoading, setRegisterLoading] = useState(false);
-  const router = useRouter();
+  const socket = useSocket();
   useEffect(() => {
     async function fetchEvents() {
       try {
