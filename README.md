@@ -62,7 +62,7 @@ cd EventEase
 ### 2️⃣ **Install Dependencies**
 
 ```bash
-npm run dev
+npm install
 ```
 
 ### 3️⃣ **Environment Variables**
@@ -78,7 +78,7 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
 ### 4️⃣ **Run the Development Server**
 
 ```bash
-node server.js
+npm run dev
 ```
 
 Visit the app at `http://localhost:3000`
